@@ -12,6 +12,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -29,15 +30,24 @@ public class JwtAuthorizationFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
-        System.out.println("!!!!!!!!!!!!필터 확인!!!!!!!!!!!!");
-        String token = jwtUtil.substringToken(request.getHeader("Authorization"));
-        Claims claims = jwtUtil.extractClaims(token);
-        try {
-            setAuthentication(claims.get("email", String.class));
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return;
+        String bearerToken = request.getHeader("Authorization");
+
+        if(StringUtils.hasText(bearerToken)) {
+            String token = jwtUtil.substringToken(bearerToken);
+            if(!jwtUtil.validateToken(token)) {
+                log.error("Token is not valid");
+                return;
+            }
+
+            Claims claims = jwtUtil.extractClaims(token);
+            try {
+                setAuthentication(claims.get("email", String.class));
+            } catch (Exception e) {
+                log.error(e.getMessage());
+                return;
+            }
         }
+
         filterChain.doFilter(request, response);
     }
 

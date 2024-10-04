@@ -3,7 +3,7 @@ package org.example.expert.config;
 import at.favre.lib.crypto.bcrypt.BCrypt;
 import org.springframework.stereotype.Component;
 
-@Component
+//@Component
 public class PasswordEncoder {
 
     public String encode(String rawPassword) {
