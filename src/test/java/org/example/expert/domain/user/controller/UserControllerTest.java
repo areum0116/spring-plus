@@ -2,14 +2,11 @@ package org.example.expert.domain.user.controller;
 
 import org.example.expert.domain.user.entity.User;
 import org.example.expert.domain.user.repository.UserRepository;
-import org.example.expert.domain.user.service.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.annotation.Commit;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.PreparedStatement;
@@ -17,26 +14,15 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @Transactional
 @Commit
-@ContextConfiguration(classes = UserController.class)
 class UserControllerTest {
     @Autowired
     JdbcTemplate jdbcTemplate = new JdbcTemplate();
 
     @Autowired
     UserRepository userRepository;
-
-    @Autowired
-    UserService userService;
-    @Autowired
-    PasswordEncoder passwordEncoder;
-
-    @Autowired
-    UserController userController;
 
     private void saveUsers(List<User> users) {
         String sql = "insert into users (id, email, password, user_role, nickname) values (?, ?, 'password', 'USER', ?)";
@@ -47,21 +33,32 @@ class UserControllerTest {
         });
     }
 
-    @Test
-    public void insertUser() throws Exception {
+//    @Test
+    public void insertUser() throws Exception { // 백만 건 데이터 생성
         // given
-        List<User> users = new ArrayList<>();
-        for (long i = 0; i < 1000000; i++) {
-            users.add(new User(i, UUID.randomUUID().toString(), "nickname" + i));
+        for (long i = 0; i < 1000000L; i += 1000) {
+            List<User> batch = new ArrayList<>();
+            for (long j = i; j < i + 1000 && j < 1000000L; j++) {
+                batch.add(new User(j, UUID.randomUUID().toString(), "nickname" + j));
+            }
+            saveUsers(batch); // 배치 저장
         }
-        saveUsers(users);
-
-        // when & then
-        assertEquals(users.size(), userRepository.count());
     }
 
     @Test
     public void getUserByNicknameTest() throws Exception {
+        int count = 5;
+        long sum = 0;
 
+        for (int i = 0; i < count; i++) {
+            long start = System.currentTimeMillis();
+            String nickname = "nickname" + (long) (Math.random() * 1000000);
+            userRepository.findByNickname(nickname);
+            long end = System.currentTimeMillis();
+            sum += (end - start);
+        }
+
+        double avg = (double) sum / count;
+        System.out.println("findByNickname 평균 소요 시간 : " + avg + "ms");
     }
 }
