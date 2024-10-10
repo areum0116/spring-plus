@@ -187,7 +187,8 @@ Spring Security를 도입하기로 결정했어요!
     - `README.md` 에 각 방법별 실행 결과를 비교할 수 있도록 최초 조회 속도와 개선 과정 별 조회 속도를 확인할 수 있는 표 혹은 이미지를 첨부해주세요.
  
 
-## [트러블슈팅](https://coder-areum.tistory.com/100)
+## [트러블슈팅]
+[SpringBootTest와 ContextConfiguration 관련 트러블슈팅](https://coder-areum.tistory.com/100)
 
 ## EC2 인스턴스 설정
 ![image](https://github.com/user-attachments/assets/3d606754-181d-4058-b2d6-2f71292159fb)
